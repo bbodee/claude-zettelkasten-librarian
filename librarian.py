@@ -438,36 +438,6 @@ def cmd_add_tags(vault_path: str, args: list[str]) -> None:
     print(f"  Slug: {slug}")
     print(f"  Run `zk:process-inbox` to move to permanent when ready.")
 
-def cmd_new(vault_path: str, args: list[str]) -> None:
-    """zk:new — Create a new permanent note draft in inbox."""
-    from writer import VaultWriter
-
-    if not args:
-        title = input("Note title: ").strip()
-    else:
-        title = " ".join(args)
-
-    tags_input = input("Tags (comma-separated): ").strip()
-    tags = [t.strip() for t in tags_input.split(",") if t.strip()]
-
-    project = input("Project(s) (comma-separated, or enter to skip): ").strip()
-    projects = [p.strip() for p in project.split(",") if p.strip()]
-
-    content = input("Initial pattern/content (or enter to skip): ").strip()
-
-    writer = VaultWriter(vault_path)
-    slug, path = writer.create_permanent(
-        title=title,
-        tags=tags,
-        projects=projects,
-        content=content,
-        draft=True
-    )
-
-    print(f"\n✓ Draft created: {path}")
-    print(f"  Slug: {slug}")
-    print(f"  Run `zk:process-inbox` to move to permanent when ready.")
-
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
@@ -487,6 +457,16 @@ COMMANDS = {
 
 
 def main():
+    # Fix Windows cp1252 encoding issues with Unicode output
+    import sys
+    if sys.platform == "win32":
+        import io
+        sys.stdout = io.TextIOWrapper(
+            sys.stdout.buffer, encoding="utf-8", errors="replace"
+        )
+        sys.stderr = io.TextIOWrapper(
+            sys.stderr.buffer, encoding="utf-8", errors="replace"
+        )
     if len(sys.argv) < 2:
         print("Usage: python librarian.py [command] [args...]")
         print("\nCommands:")
