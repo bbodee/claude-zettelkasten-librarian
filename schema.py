@@ -11,11 +11,13 @@ import re
 
 TAG_TAXONOMY = {
     "tools": [
+        "game-overlay",
         "python", "renpy", "comfyui", "pygame", "streamlit", "pandas",
         "numpy", "sqlite", "swf", "noobai", "controlnet", "obsidian",
         "ck3", "eu5", "fm", "paradox",
     ],
     "concepts": [
+        "binary", "estimation", "navi-advisor", "plaintext", "rakaly", "scout",
         "pattern", "gotcha", "solution", "reference", "template",
         "state-management", "api-patterns", "file-io", "performance",
         "ui-patterns", "statistics", "probability", "save-parsing",
@@ -24,6 +26,7 @@ TAG_TAXONOMY = {
         "context-injection", "atomic-note",
     ],
     "domains": [
+        "animation", "claude-code", "community", "maintenance", "mechanics", "ux", "windows", "workflow",
         "game-dev", "management-sim", "visual-novel", "image-generation",
         "data-analysis", "workflow-automation", "modding", "overlay",
     ],
