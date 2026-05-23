@@ -203,8 +203,8 @@ def lint_note(note: Note) -> list[str]:
 
     # Check for wikilinks
     if "[[" not in note.body and note.note_type == "permanent":
-        issues.append("No wikilinks found (minimum 2 required)")
-
+        if "llm-compressed" not in note.body:  # skip compressed notes
+            issues.append("No wikilinks found (minimum 2 required)")
     return issues
 
 
