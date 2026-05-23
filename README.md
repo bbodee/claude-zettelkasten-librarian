@@ -25,13 +25,13 @@ pip install pyyaml
 ### zk:rr [project]
 Load context for a project. Reads MOC + recent logs + relevant notes.
 ```powershell
-python librarian.py zk:rr sim-brothel-v2
+python librarian.py zk:rr my-project
 ```
 
 ### zk:ss [project] [description]
 Draft a session log.
 ```powershell
-python librarian.py zk:ss sim-brothel-v2 advance-day-fix
+python librarian.py zk:ss my-project feature-implementation
 ```
 
 ### zk:cx [topic]
@@ -50,9 +50,9 @@ python librarian.py zk:lint
 ### zk:compress [slug] [--llm] [--aggressive]
 Reformat a note to LLM-directive format.
 ```powershell
-python librarian.py zk:compress ck3-opinion-mechanics
-python librarian.py zk:compress ck3-opinion-mechanics --aggressive
-python librarian.py zk:compress ck3-opinion-mechanics --llm    # best
+python librarian.py zk:compress my-note-slug
+python librarian.py zk:compress my-note-slug --aggressive
+python librarian.py zk:compress my-note-slug --llm    # best
 ```
 
 ### zk:compress-all [--llm]
@@ -65,13 +65,13 @@ python librarian.py zk:compress-all --llm
 Generate a project plan informed by vault context.
 Post result to Claude chat for refinement.
 ```powershell
-python librarian.py zk:plan "management sim in Godot"
+python librarian.py zk:plan "new Python project with SQLite"
 ```
 
 ### zk:synthesize [project]
 Synthesize all project notes into one dense context block.
 ```powershell
-python librarian.py zk:synthesize sim-brothel-v2
+python librarian.py zk:synthesize my-project
 ```
 
 ### zk:process-inbox
