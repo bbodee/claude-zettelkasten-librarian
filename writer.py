@@ -29,8 +29,9 @@ class VaultWriter:
         path.mkdir(parents=True, exist_ok=True)
 
     def _slug(self, title: str) -> str:
-        """Convert title to kebab-case slug."""
+        """Convert title to kebab-case slug. Strips slashes and special chars."""
         slug = title.lower()
+        slug = slug.replace("/", "-").replace("\\", "-")  # explicit slash handling
         slug = re.sub(r"[^\w\s-]", "", slug)
         slug = re.sub(r"[\s_]+", "-", slug)
         slug = re.sub(r"-+", "-", slug).strip("-")
