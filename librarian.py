@@ -333,8 +333,113 @@ def cmd_process_inbox(vault_path: str, args: list[str]) -> None:
     print("\nInbox processing complete.")
 
 
-def cmd_new(vault_path: str, args: list[str]) -> None:
+def cmd_add_tags(vault_path: str, args: list[str]) -> None:
+    """zk:add-tags — Add unknown tags from lint to schema taxonomy."""
+    from reader import VaultReader
+    from schema import validate_frontmatter, ALL_TAGS, TAG_TAXONOMY
+    import ast
+
+    # Run lint to find unknown tags
+    reader = VaultReader(vault_path)
+    notes = reader.all_permanent()
+
+    unknown = set()
+    for note in notes:
+        errors = validate_frontmatter(note)
+        for error in errors:
+            if "Unknown tags" in error:
+                # Extract tags from error message
+                start = error.find("[") 
+                end = error.find("]")
+                if start != -1 and end != -1:
+                    tag_str = error[start:end+1]
+                    try:
+                        tags = ast.literal_eval(tag_str)
+                        unknown.update(tags)
+                    except Exception:
+                        pass
+
+    if not unknown:
+        print("No unknown tags found. Taxonomy is complete.")
+        return
+
+    print(f"\nUnknown tags found ({len(unknown)}):")
+    for tag in sorted(unknown):
+        print(f"  {tag}")
+
+    print("\nFor each tag, enter the category to add it to:")
+    print("  tools / concepts / domains / or new category name")
+    print("  Press enter to skip a tag\n")
+
+    additions: dict[str, list] = {}
+
+    for tag in sorted(unknown):
+        category = input(f"  [{tag}] category: ").strip()
+        if not category:
+            continue
+        if category not in additions:
+            additions[category] = []
+        additions[category].append(tag)
+
+    if not additions:
+        print("No tags to add.")
+        return
+
+    # Read and update schema.py
+    schema_path = Path(__file__).parent / "schema.py"
+    content = schema_path.read_text(encoding="utf-8")
+
+    for category, tags in additions.items():
+        tags_str = ", ".join(f'"{t}"' for t in tags)
+
+        if f'"{category}": [' in content:
+            # Add to existing category
+            old = f'"{category}": ['
+            new = f'"{category}": [\n        {tags_str},'
+            content = content.replace(old, new, 1)
+            print(f"  Added to {category}: {tags}")
+        else:
+            # Add new category before closing brace of TAG_TAXONOMY
+            insertion = f'    "{category}": [\n        {tags_str},\n    ],\n'
+            content = content.replace(
+                "}\n\nALL_TAGS",
+                f"    {insertion}}}\n\nALL_TAGS"
+            )
+            print(f"  Created new category {category}: {tags}")
+
+    schema_path.write_text(content, encoding="utf-8")
+    print(f"\n✓ schema.py updated. Run zk:lint to verify.")
     """zk:new [title] — Create a new permanent note draft."""
+    from writer import VaultWriter
+
+    if not args:
+        title = input("Note title: ").strip()
+    else:
+        title = " ".join(args)
+
+    tags_input = input("Tags (comma-separated): ").strip()
+    tags = [t.strip() for t in tags_input.split(",") if t.strip()]
+
+    project = input("Project(s) (comma-separated, or enter to skip): ").strip()
+    projects = [p.strip() for p in project.split(",") if p.strip()]
+
+    content = input("Initial pattern/content (or enter to skip): ").strip()
+
+    writer = VaultWriter(vault_path)
+    slug, path = writer.create_permanent(
+        title=title,
+        tags=tags,
+        projects=projects,
+        content=content,
+        draft=True
+    )
+
+    print(f"\n✓ Draft created: {path}")
+    print(f"  Slug: {slug}")
+    print(f"  Run `zk:process-inbox` to move to permanent when ready.")
+
+def cmd_new(vault_path: str, args: list[str]) -> None:
+    """zk:new — Create a new permanent note draft in inbox."""
     from writer import VaultWriter
 
     if not args:
@@ -376,6 +481,7 @@ COMMANDS = {
     "zk:plan": cmd_plan,
     "zk:synthesize": cmd_synthesize,
     "zk:process-inbox": cmd_process_inbox,
+    "zk:add-tags": cmd_add_tags,
     "zk:new": cmd_new,
 }
 
