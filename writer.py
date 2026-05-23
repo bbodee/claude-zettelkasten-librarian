@@ -31,7 +31,14 @@ class VaultWriter:
     def _slug(self, title: str) -> str:
         """Convert title to kebab-case slug. Strips slashes and special chars."""
         slug = title.lower()
-        slug = slug.replace("/", "-").replace("\\", "-")  # explicit slash handling
+        # Explicit special character handling
+        slug = slug.replace("/", "-").replace("\\", "-")
+        slug = slug.replace("→", "-").replace("←", "-")
+        slug = slug.replace(":", "-").replace("+", "-")
+        slug = slug.replace("(", "").replace(")", "")
+        slug = slug.replace("[", "").replace("]", "")
+        slug = slug.replace("&", "and")
+        # Strip remaining non-word chars
         slug = re.sub(r"[^\w\s-]", "", slug)
         slug = re.sub(r"[\s_]+", "-", slug)
         slug = re.sub(r"-+", "-", slug).strip("-")
